@@ -1227,649 +1227,8 @@ endfunction
 ;#                                                                                                                                         #
 ;#-----------------------------------------------------------------------------------------------------------------------------------------#
 
-;/* RegisterStat
-* * Adds a custom statistic in the list of Actor Statistics. If the stat already exists, then it does nothing.
-* * 
-* * @param: Name - the name of the statistic
-* * @param: Value - The value for the statistic
-* * @param: Preped - a string to put before the stat
-* * @param: Append - a string to put after the stat
-* * @return: an int that is the position of the newly created stat
-*/;
-int function RegisterStat(string Name, string Value, string Prepend = "", string Append = "")
-  return Stats.RegisterStat(Name, Value, Prepend, Append)
-endFunction
+; TODO: Adjust for new stats system
 
-; Alters an existing stat that has already been registered from the above
-function Alter(string Name, string NewName = "", string Value = "", string Prepend = "", string Append = "")
-  Stats.Alter(Name, NewName, Value, Prepend, Append)
-endFunction
-
-;/* FindStat
-* * Returns the index of a stat, or -1 if the stat does not exists
-* * @param: the Name of the Statistics
-* * @return: an int with the index of the stat, -1 if not found
-*/;
-int function FindStat(string Name)
-  return Stats.FindStat(Name)
-endFunction
-
-;/* GetActorStat
-* * Gets the value for a custom stat for the specified actor as a string
-* *
-* * @param: ActorRef, is the actor to get the value of the stat
-* * @param: Name, is the name of the stat that will be get
-* * @return: A string with the value of the stat for the actor, if the actor has no stat for the specified value, then the default value is returned
-*/;
-string function GetActorStat(Actor ActorRef, string Name)
-  return Stats.GetStat(ActorRef, Name)
-endFunction
-
-;/* GetActorStatInt
-* * Gets the value for a custom stat for the specified actor as an int
-* *
-* * @param: ActorRef, is the actor to get the value of the stat
-* * @param: Name, is the name of the stat that will be get
-* * @return: An int  with the value of the stat for the actor, if the actor has no stat for the specified value, then the default value is returned
-*/;
-int function GetActorStatInt(Actor ActorRef, string Name)
-  return Stats.GetStatInt(ActorRef, Name)
-endFunction
-
-;/* GetActorStatFloat
-* * Gets the value for a custom stat for the specified actor as a float
-* *
-* * @param: ActorRef, is the actor to get the value of the stat
-* * @param: Name, is the name of the stat that will be get
-* * @return: A float with the value of the stat for the actor, if the actor has no stat for the specified value, then the default value is returned
-*/;
-float function GetActorStatFloat(Actor ActorRef, string Name)
-  return Stats.GetStatFloat(ActorRef, Name)
-endFunction
-
-;/* SetActorStat
-* * Sets the value for a custom stat for the specified actor
-* *
-* * @param: ActorRef, is the actor to get the value of the stat
-* * @param: Name, is the name of the stat that will be get
-* * @return: The previous value for the stat (TO BE CONFIRMED!!!!)
-*/;
-string function SetActorStat(Actor ActorRef, string Name, string Value)
-  return Stats.SetStat(ActorRef, Name, Value)
-endFunction
-
-;/* 
-*/;
-int function ActorAdjustBy(Actor ActorRef, string Name, int AdjustBy)
-  return Stats.AdjustBy(ActorRef, Name, AdjustBy)
-endFunction
-
-;/* 
-*/;
-string function GetActorStatFull(Actor ActorRef, string Name)
-  return Stats.GetStatFull(ActorRef, Name)
-endFunction
-
-;/* 
-*/;
-string function GetStatFull(string Name)
-  return Stats.GetStatFull(PlayerRef, Name)
-endFunction
-
-;/* 
-*/;
-string function GetStat(string Name)
-  return Stats.GetStat(PlayerRef, Name)
-endFunction
-
-;/* 
-*/;
-int function GetStatInt(string Name)
-  return Stats.GetStatInt(PlayerRef, Name)
-endFunction
-
-;/* 
-*/;
-float function GetStatFloat(string Name)
-  return Stats.GetStatFloat(PlayerRef, Name)
-endFunction
-
-;/* 
-*/;
-string function SetStat(string Name, string Value)
-  return Stats.SetStat(PlayerRef, Name, Value)
-endFunction
-
-;/* 
-*/;
-int function AdjustBy(string Name, int AdjustBy)
-  return Stats.AdjustBy(PlayerRef, Name, AdjustBy)
-endFunction
-
-;/* CalcSexuality
-* * Calculates the sexuality given by the number of "partners" as number of males and females
-* * This function is a global mathematical function, it is not specific for an actor.
-* * 
-* * @param: IsFemale, if set to true, then the calculation is done for a female, if set to FALSE then the calculation is done as a male
-* * @param: males, is the number of sexual relations had with a male
-* * @param: females, is the number of sexual relations had with a female
-* * @return: an int between 0 and 100, where 0 is for full homosexual and 100 for full heterosexual. 50 is for bisexual.
-*/;
-int function CalcSexuality(bool IsFemale, int males, int females)
-  return Stats.CalcSexuality(IsFemale, males, females)
-endFunction
-
-;/* CalcLevel
-* * it is a mathematical function that calculates a level as the square root of the half of the first parameter multiplied by the curve parameter.
-* *
-* * @param: total, is the number used to calculate the value
-* * @param: curve, is a parameter to have the result more smooth (<1.0) or sharp (>1.0)
-* * @return: an inte as result of sqr(total / 2) * curve rounded to the integer value
-*/;
-int function CalcLevel(float total, float curve = 0.65)
-  return Stats.CalcLevel(total, curve)
-endFunction
-
-;/* ParseTime
-* * Utility function that converts an amount of seconds in a string representation with the format HH:MM:SS
-* *
-* * @param: int time, the number of seconds to convert in the string format
-* * @return: a string with the amount of seconds converted in the HH:MM:SS format. If the amount of seconds is zero or negative, then the result is "--:--:--"
-*/;
-string function ParseTime(int time)
-  return Stats.ParseTime(time)
-endFunction
-
-;/* PlayerSexCount
-* * Returns the number of times the actor had sex with the player.
-* *
-* * @param: Actor ActorRef, is the actor to check the number of intercourses with the player
-* * @return: The number of intercourses the actor had with the player
-*/;
-int function PlayerSexCount(Actor ActorRef)
-  return Stats.PlayerSexCount(ActorRef)
-endFunction
-
-;/* HadPlayerSex
-* * Checks if the actor ever had sex with the player
-* *
-* * @param: Actor ActorRef, is the actor to check the number of intercourses with the player
-* * @return: TRUE if the actor had sex with the player
-*/;
-bool function HadPlayerSex(Actor ActorRef)
-  return Stats.HadPlayerSex(ActorRef)
-endFunction
-
-;/* MostUsedPlayerSexPartner
-* * Find which actor had more sex intercourse with the player
-* *
-* * @return: an Actor that is the partner of the player which had most intercourses with the player
-*/;
-Actor function MostUsedPlayerSexPartner()
-  return Stats.MostUsedPlayerSexPartner()
-endFunction
-
-;/* MostUsedPlayerSexPartners
-* * Find which actors had more sex intercourse with the player. 
-* *
-* * @param: int MaxActors [OPTIONAL] - The Max amount actor to add to the returned array 
-* * @return: Actor[] - An intercourse sorted Actor array with the partners of the player which had most intercourses with the player
-*/;
-Actor[] function MostUsedPlayerSexPartners(int MaxActors = 5)
-  return Stats.MostUsedPlayerSexPartners(MaxActors)
-endFunction
-
-;/* LastSexPartner
-* * Find the last sex partner for a given actor
-* * 
-* * @param: Actor ActorRef, is the actor to check for finding the last sex partner
-* * @return: An Actor that was the last actor the ActorRef had sex with
-*/;
-Actor function LastSexPartner(Actor ActorRef)
-  return Stats.LastSexPartner(ActorRef)
-endFunction
-
-;/* HasHadSexTogether
-* * Checks if the two actors ever had sex together
-* *
-* * @param: Actor ActorRef1, first of the two partners to check
-* * @param: Actor ActorRef2, second of the two partners to check
-* * @return: TRUE is the two actors ever had sex together
-*/;
-bool function HasHadSexTogether(Actor ActorRef1, Actor ActorRef2)
-  return Stats.HasHadSexTogether(ActorRef1, ActorRef2)
-endfunction
-
-;/* LastAggressor
-* * Returns the last actor that was an aggressor in a SexLab animation involving the actor parameter 
-* *
-* * @param: Actor ActorRef, is the actor to check for finding the last aggressor
-* * @return: An Actor that was the last aggressor the ActorRef had, None if the actor never had an aggressor
-*/;
-Actor function LastAggressor(Actor ActorRef)
-  return Stats.LastAggressor(ActorRef)
-endFunction
-
-;/* WasVictimOf
-* * Very similar to LastAggressor(), but you can specify also a specific aggressor
-* *
-* * @param: Actor VictimRef, is the actor to check to understand if was aggressed by AggressorRef
-* * @param: Actor AggressorRef, is the actor to check to understand VictimRef was aggressed by
-* * @return: TRUE AggressorRef was an aggressor of VictimRef
-*/;
-bool function WasVictimOf(Actor VictimRef, Actor AggressorRef)
-  return Stats.WasVictimOf(VictimRef, AggressorRef)
-endFunction
-
-;/* LastVictim
-* * Finds who was the last vicitm of the specified actor
-* *
-* * @param: Actor ActorRef, the actor that was an aggressor
-* * @return: an Actor that was the last victim of the specified aggressor.
-*/;
-Actor function LastVictim(Actor ActorRef)
-  return Stats.LastVictim(ActorRef)
-endFunction
-
-;/* WasAggressorTo
-* * Exactly the same of WasVictimOf(), but with the roles exchanged
-* *
-* * @param: Actor AggressorRef, is the actor to check to understand VictimRef was aggressed by
-* * @param: Actor VictimRef, is the actor to check to understand if was aggressed by AggressorRef
-* * @return: TRUE AggressorRef was an aggressor of VictimRef
-*/;
-bool function WasAggressorTo(Actor AggressorRef, Actor VictimRef)
-  return Stats.WasAggressorTo(AggressorRef, VictimRef)
-endFunction
-
-;/* AdjustPurity
-* * Changes the stats for the specified actor for "Pure" and "lewd". If the "amount" is positive then the "Pure" stat is increased. If the "amount" is negative, then the "lewd" stat is increased.
-* *
-* * @param: Actor ActorRef, is the actor for whom to change the stat
-* * @param: float amount, is the amount that will be added to "Pure" (if amount is positive), or "Lewd" (if amount is negative) stats.
-* * @return: the resulting value of the stat
-*/;
-float function AdjustPurity(Actor ActorRef, float amount)
-  return Stats.AdjustPurity(ActorRef, amount)
-endFunction
-
-;/* SetSexuality
-* * Defines the sexual orientation of the specified actor, where 1 is pure homosexual, and 100 is pure heterosexual
-* *
-* * @param: Actor ActorRef, is the actor for whom to change the sexual orientation (warning this is NOT touching the Sex Gender!)
-* * @param: float amount, is the amount that will specify if the actor is 1=pure homosexual, 50=bisexual, 100=pure heterosexual
-*/;
-function SetSexuality(Actor ActorRef, int amount)
-  Stats.SetSkill(ActorRef, "Sexuality", PapyrusUtil.ClampInt(amount, 1, 100))
-endFunction
-
-;/* SetSexualityStraight
-* * Shortcut for SetSexuality(actor, 100), makes the actor pure heterosexual
-* *
-* * @param: Actor ActorRef, is the actor for whom to change the sexual orientation (warning this is NOT touching the Sex Gender!)
-*/;
-function SetSexualityStraight(Actor ActorRef)
-  Stats.SetSkill(ActorRef, "Sexuality", 100)
-endFunction
-
-;/* SetSexualityBisexual
-* * Shortcut for SetSexuality(actor, 50), makes the actor bisexual
-* *
-* * @param: Actor ActorRef, is the actor for whom to change the sexual orientation (warning this is NOT touching the Sex Gender!)
-*/;
-function SetSexualityBisexual(Actor ActorRef)
-  Stats.SetSkill(ActorRef, "Sexuality", 50)
-endFunction
-
-;/* SetSexualityGay
-* * Shortcut for SetSexuality(actor, 1), makes the actor pure homosexual
-* *
-* * @param: Actor ActorRef, is the actor for whom to change the sexual orientation (warning this is NOT touching the Sex Gender!)
-*/;
-function SetSexualityGay(Actor ActorRef)
-  Stats.SetSkill(ActorRef, "Sexuality", 1)
-endFunction
-
-;/* GetSexuality
-* * Returns the stat for the specified actor about its sexuality
-* *
-* * @param: Actor ActorRef, is the actor for whom to change the sexual orientation (warning this is NOT touching the Sex Gender!)
-* * @return: an int with the sexual orientation of the actor. 1 will be pure homosexual, and 100 will be pure heterosexual
-*/;
-int function GetSexuality(Actor ActorRef)
-  return Stats.GetSexuality(ActorRef)
-endFunction
-
-;/* GetSexualityTitle
-* * Provides the sexuality not as a number but as a descriptive, translated, string
-* *
-* * @param: Actor ActorRef, is the actor for whom to change the sexual orientation (warning this is NOT touching the Sex Gender!)
-* * @return: a string with "Heterosexual" if the sexuality score is greater or equal to 65; "Bisexual" if the score is between 65 and 35; "Gay" or "Lesbian" in case the sexuality is less than 35, of course the value depends on the actual gender of the actor.
-*/;
-string function GetSexualityTitle(Actor ActorRef)
-  return Stats.GetSexualityTitle(ActorRef)
-endFunction
-
-;/* GetSkillTitle
-* * Provide a description of the specified skill for the defined actor.
-* * Possible values (that can be trnaslated) are: Unskilled, Novice, Apprentice, Journeyman, Expert, Master, and GrandMaster
-* *
-* * @param: Actor ActorRef, is the actor for whom to calculate the skill title
-* * @param: string Skill, is the skill to calculate the title (standard skills are: Foreplay, Vaginal, Anal, Oral, Pure, and Lewd)
-* * @return: a string with the title corresponding to the skill level for the actor
-*/;
-string function GetSkillTitle(Actor ActorRef, string Skill)
-  return Stats.GetSkillTitle(ActorRef, Skill)
-endFunction
-
-;/* GetSkill
-* * Returns the actual value of the specified skill for the specified actor
-* *
-* * @param: Actor ActorRef, is the actor for whom get the skill value
-* * @param: string Skill, is the skill to get (standard skills are: Foreplay, Vaginal, Anal, Oral, Pure, and Lewd)
-* * @return: an int with the raw value of the skill for the actor
-*/;
-int function GetSkill(Actor ActorRef, string Skill)
-  return Stats.GetSkill(ActorRef, Skill)
-endFunction
-
-;/* GetSkillLevel
-* * Returns the calculated level value of the specified skill for the specified actor
-* *
-* * @param: Actor ActorRef, is the actor for whom get the skill level
-* * @param: string Skill, is the skill to get (standard skills are: Foreplay, Vaginal, Anal, Oral, Pure, and Lewd)
-* * @return: an int with the calculate level of the skill for the actor
-*/;
-int function GetSkillLevel(Actor ActorRef, string Skill)
-  return Stats.GetSkillLevel(ActorRef, Skill)
-endFunction
-
-;/* GetPurity
-* * Return the raw walue for the Pure skill for the actor
-* *
-* * @param: Actor ActorRef, is the actor for whom get the skill value
-* * @return: a float with the actual raw value of the "pure" skill
-*/;
-float function GetPurity(Actor ActorRef)
-  return Stats.GetPurity(ActorRef)
-endFunction
-
-;/* GetPurityLevel
-* * Return the level walue for the Pure skill for the actor
-* *
-* * @param: Actor ActorRef, is the actor for whom get the skill value
-* * @return: an int with the leveled value of the "pure" skill
-*/;
-int function GetPurityLevel(Actor ActorRef)
-  return Stats.GetPurityLevel(ActorRef)
-endFunction
-
-;/* GetPurityTitle
-* * Provides a string with the title of the purity level for the actor
-* * e.g. Neutral, Unsullied, CleanCut, Virtuous, EverFaithful, Lordly, Saintly
-* *
-* * @param: Actor ActorRef, is the actor for whom get the purity level
-* * @return: a string with the purity title
-*/;
-string function GetPurityTitle(Actor ActorRef)
-  return Stats.GetPurityTitle(ActorRef)
-endFunction
-
-;/* IsPure
-* * Checks if an actor is pure or not
-* *
-* * @param: Actor ActorRef, is the actor to check for purity
-* * @return: true if the actor is pure
-*/;
-bool function IsPure(Actor ActorRef)
-  return Stats.IsPure(ActorRef)
-endFunction
-
-
-;/* IsLewd
-* * Checks if an actor is lewd or not
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: true if the actor is lewd
-*/;
-bool function IsLewd(Actor ActorRef)
-  return Stats.IsLewd(ActorRef)
-endFunction
-
-;/* IsStraight
-* * Checks if the actor is straight, so if it had mainly heterosexual intercourses
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: true if the actor has a level of sexuality greater than 65% (mostly heterosexual)
-*/;
-bool function IsStraight(Actor ActorRef)
-  return Stats.IsStraight(ActorRef)
-endFunction
-
-;/* IsBisexual
-* * Checks if the actor is bisexual, so if it had a mix of homosexual and heterosexual intercourses
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: true if the actor has a level of sexuality between 35% and 65%
-*/;
-bool function IsBisexual(Actor ActorRef)
-  return Stats.IsBisexual(ActorRef)
-endFunction
-
-;/* IsGay
-* * Checks if the actor is gay/lesbian, so if it had mainly homosexual intercourses
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: true if the actor has a level of sexuality lower than 35% (mostly homosexual)
-*/;
-bool function IsGay(Actor ActorRef)
-  return Stats.IsGay(ActorRef)
-endFunction
-
-;/* SexCount
-* * Provides the number of times the actor participated in sex using sexlab
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: an int with the number of times the actor had sex using sexlab
-*/;
-int function SexCount(Actor ActorRef)
-  return Stats.SexCount(ActorRef)
-endFunction
-
-;/* HadSex
-* * Checks if an actor ever had sex before
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: true if the actor participated in at least one intercourse
-*/;
-bool function HadSex(Actor ActorRef)
-  return Stats.HadSex(ActorRef)
-endFunction
-
-;/* LastSexGameTime
-* * Provides the last time the actor had sex, in GameTime format
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the game time (same format as returned by Utility.GetCurrentGameTime()) when the actor had sex last time
-*/;
-; Last sex - Game time - float days
-float function LastSexGameTime(Actor ActorRef)
-  return Stats.LastSexGameTime(ActorRef)
-endFunction
-
-;/* DaysSinceLastSex
-* * Provides the number of days (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of game days passed from the last time the actor had sex
-*/;
-float function DaysSinceLastSex(Actor ActorRef)
-  return Stats.DaysSinceLastSex(ActorRef)
-endFunction
-
-;/* HoursSinceLastSex
-* * Provides the number of hours (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of game hours passed from the last time the actor had sex
-*/;
-float function HoursSinceLastSex(Actor ActorRef)
-  return Stats.HoursSinceLastSex(ActorRef)
-endFunction
-
-;/* MinutesSinceLastSex
-* * Provides the number of minutes (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of game minutes passed from the last time the actor had sex
-*/;
-float function MinutesSinceLastSex(Actor ActorRef)
-  return Stats.MinutesSinceLastSex(ActorRef)
-endFunction
-
-;/* SecondsSinceLastSex
-* * Provides the number of seconds (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of game seconds passed from the last time the actor had sex
-*/;
-float function SecondsSinceLastSex(Actor ActorRef)
-  return Stats.SecondsSinceLastSex(ActorRef)
-endFunction
-
-;/* LastSexTimerString
-* * Provides the last time the actor had sex, in GameTime format but converted to a descriptive string
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a string with the game time (same format as returned by Utility.GetCurrentGameTime()) when the actor had sex last time
-*/;
-string function LastSexTimerString(Actor ActorRef)
-  return Stats.LastSexTimerString(ActorRef)
-endFunction
-
-;/* LastSexRealTime
-* * Provides the last time the actor had sex, in Real Time format
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the game time (same format as returned by Utility.GetCurrentRealTime()) when the actor had sex last time
-*/;
-float function LastSexRealTime(Actor ActorRef)
-  return Stats.LastSexRealTime(ActorRef)
-endFunction
-
-;/* DaysSinceLastSexRealTime
-* * Provides the number of days (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of game days passed from the last time the actor had sex
-*/;
-float function DaysSinceLastSexRealTime(Actor ActorRef)
-  return Stats.DaysSinceLastSexRealTime(ActorRef)
-endFunction
-
-;/* HoursSinceLastSexRealTime
-* * Provides the number of hours (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of real time hours passed from the last time the actor had sex
-*/;
-float function HoursSinceLastSexRealTime(Actor ActorRef)
-  return Stats.HoursSinceLastSexRealTime(ActorRef)
-endFunction
-
-;/* MinutesSinceLastSexRealTime
-* * Provides the number of minutes (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of real time minutes passed from the last time the actor had sex
-*/;
-float function MinutesSinceLastSexRealTime(Actor ActorRef)
-  return Stats.MinutesSinceLastSexRealTime(ActorRef)
-endFunction
-
-;/* SecondsSinceLastSexRealTime
-* * Provides the number of seconds (it can be a fraction) passed from the last time the actor had sex
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a float with the number of real time seconds passed from the last time the actor had sex
-*/;
-float function SecondsSinceLastSexRealTime(Actor ActorRef)
-  return Stats.SecondsSinceLastSexRealTime(ActorRef)
-endFunction
-
-;/* LastSexTimerStringRealTime
-* * Provides the last time the actor had sex, in Real Time format but converted to a descriptive string
-* *
-* * @param: Actor ActorRef, is the actor to check
-* * @return: a string with the real timewhen the actor had sex last time
-*/;
-string function LastSexTimerStringRealTime(Actor ActorRef)
-  return Stats.LastSexTimerStringRealTime(ActorRef)
-endFunction
-
-;/* AdjustPlayerPurity
-* * Changes the stats for the p for "Pure" and "lewd". If the "amount" is positive then the "Pure" stat is increased. If the "amount" is negative, then the "lewd" stat is increased.
-* * This function is a Player shortcut
-* *
-* * @param: float amount, is the amount that will be added to "Pure" (if amount is positive), or "Lewd" (if amount is negative) stats.
-* * @return: the resulting value of the stat
-*/;
-float function AdjustPlayerPurity(float amount)
-  return Stats.AdjustPurity(PlayerRef, amount)
-endFunction
-
-;/* GetPlayerPurityLevel
-* * Return the level walue for the Pure skill for the player
-* * This function is a Player shortcut
-* *
-* @return: an int with the leveled value of the "pure" skill
-*/;
-int function GetPlayerPurityLevel()
-  return Stats.GetPurityLevel(PlayerRef)
-endFunction
-
-;/* GetPlayerPurityTitle
-* * Provides a string with the title of the purity level for the player
-* * e.g. Neutral, Unsullied, CleanCut, Virtuous, EverFaithful, Lordly, Saintly
-* * This function is a Player shortcut
-* *
-* @return: a string with the purity title
-*/;
-string function GetPlayerPurityTitle()
-  return Stats.GetPurityTitle(PlayerRef)
-endFunction
-
-;/* GetPlayerSexualityTitle
-* * Provides the sexuality not as a number but as a descriptive, translated, string
-* * This function is a Player shortcut
-* *
-* @return: a string with "Heterosexual" if the sexuality score of the player is greater or equal to 65; "Bisexual" if the score is between 65 and 35; "Gay" or "Lesbian" in case the sexuality is less than 35, of course the value depends on the actual gender of the player.
-*/;
-string function GetPlayerSexualityTitle()
-  return Stats.GetSexualityTitle(PlayerRef)
-endFunction
-
-;/* GetPlayerSkillLevel
-* * Returns the calculated level value of the specified skill for the player
-* * This function is a Player shortcut
-* *
-* @return: an int with the calculate level of the skill for the player
-*/;
-int function GetPlayerSkillLevel(string Skill)
-  return Stats.GetSkillLevel(PlayerRef, Skill)
-endFunction
-
-;/* GetPlayerSkillTitle
-* * Provide a description of the specified skill for the player.
-* * Possible values (that can be translated) are: Unskilled, Novice, Apprentice, Journeyman, Expert, Master, and GrandMaster
-* * This function is a Player shortcut
-* *
-* * @param: string Skill, is the skill to calculate the title (standard skills are: Foreplay, Vaginal, Anal, Oral, Pure, and Lewd)
-* * @return: a string with the title corresponding to the skill level for the player
-*/;
-string function GetPlayerSkillTitle(string Skill)
-  return Stats.GetSkillTitle(PlayerRef, Skill)
-endFunction
 
 ;#-----------------------------------------------------------------------------------------------------------------------------------------#
 ;#                                                                                                                                         #
@@ -2448,6 +1807,338 @@ string[] function GetAllBothAnimationTags(int ActorCount = -1, bool IgnoreDisabl
   string[] Output = PapyrusUtil.MergeStringArray(AnimSlots.GetAllTags(ActorCount, IgnoreDisabled), CreatureSlots.GetAllTags(ActorCount, IgnoreDisabled))
   PapyrusUtil.SortStringArray(Output)
   return Output
+endFunction
+
+; --- Legacy Statistics Functions
+
+;/* DEPRECATED! */;
+int function RegisterStat(string Name, string Value, string Prepend = "", string Append = "")
+  return Stats.RegisterStat(Name, Value, Prepend, Append)
+endFunction
+
+;/* DEPRECATED! */;
+function Alter(string Name, string NewName = "", string Value = "", string Prepend = "", string Append = "")
+  Stats.Alter(Name, NewName, Value, Prepend, Append)
+endFunction
+
+;/* DEPRECATED! */;
+int function FindStat(string Name)
+  return Stats.FindStat(Name)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetActorStat(Actor ActorRef, string Name)
+  return Stats.GetStat(ActorRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetActorStatInt(Actor ActorRef, string Name)
+  return Stats.GetStatInt(ActorRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+float function GetActorStatFloat(Actor ActorRef, string Name)
+  return Stats.GetStatFloat(ActorRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+string function SetActorStat(Actor ActorRef, string Name, string Value)
+  return Stats.SetStat(ActorRef, Name, Value)
+endFunction
+
+;/* DEPRECATED! */;
+int function ActorAdjustBy(Actor ActorRef, string Name, int AdjustBy)
+  return Stats.AdjustBy(ActorRef, Name, AdjustBy)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetActorStatFull(Actor ActorRef, string Name)
+  return Stats.GetStatFull(ActorRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetStatFull(string Name)
+  return Stats.GetStatFull(PlayerRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetStat(string Name)
+  return Stats.GetStat(PlayerRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetStatInt(string Name)
+  return Stats.GetStatInt(PlayerRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+float function GetStatFloat(string Name)
+  return Stats.GetStatFloat(PlayerRef, Name)
+endFunction
+
+;/* DEPRECATED! */;
+string function SetStat(string Name, string Value)
+  return Stats.SetStat(PlayerRef, Name, Value)
+endFunction
+
+;/* DEPRECATED! */;
+int function AdjustBy(string Name, int AdjustBy)
+  return Stats.AdjustBy(PlayerRef, Name, AdjustBy)
+endFunction
+
+;/* DEPRECATED! */;
+int function CalcSexuality(bool IsFemale, int males, int females)
+  return Stats.CalcSexuality(IsFemale, males, females)
+endFunction
+
+;/* DEPRECATED! */;
+int function CalcLevel(float total, float curve = 0.65)
+  return Stats.CalcLevel(total, curve)
+endFunction
+
+;/* DEPRECATED! */;
+string function ParseTime(int time)
+  return Stats.ParseTime(time)
+endFunction
+
+;/* DEPRECATED! */;
+int function PlayerSexCount(Actor ActorRef)
+  return Stats.PlayerSexCount(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function HadPlayerSex(Actor ActorRef)
+  return Stats.HadPlayerSex(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+Actor function MostUsedPlayerSexPartner()
+  return Stats.MostUsedPlayerSexPartner()
+endFunction
+
+;/* DEPRECATED! */;
+Actor[] function MostUsedPlayerSexPartners(int MaxActors = 5)
+  return Stats.MostUsedPlayerSexPartners(MaxActors)
+endFunction
+
+;/* DEPRECATED! */;
+Actor function LastSexPartner(Actor ActorRef)
+  return Stats.LastSexPartner(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function HasHadSexTogether(Actor ActorRef1, Actor ActorRef2)
+  return Stats.HasHadSexTogether(ActorRef1, ActorRef2)
+endfunction
+
+;/* DEPRECATED! */;
+Actor function LastAggressor(Actor ActorRef)
+  return Stats.LastAggressor(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function WasVictimOf(Actor VictimRef, Actor AggressorRef)
+  return Stats.WasVictimOf(VictimRef, AggressorRef)
+endFunction
+
+;/* DEPRECATED! */;
+Actor function LastVictim(Actor ActorRef)
+  return Stats.LastVictim(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function WasAggressorTo(Actor AggressorRef, Actor VictimRef)
+  return Stats.WasAggressorTo(AggressorRef, VictimRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function AdjustPurity(Actor ActorRef, float amount)
+  return Stats.AdjustPurity(ActorRef, amount)
+endFunction
+
+;/* DEPRECATED! */;
+function SetSexuality(Actor ActorRef, int amount)
+  Stats.SetSkill(ActorRef, "Sexuality", PapyrusUtil.ClampInt(amount, 1, 100))
+endFunction
+
+;/* DEPRECATED! */;
+function SetSexualityStraight(Actor ActorRef)
+  Stats.SetSkill(ActorRef, "Sexuality", 100)
+endFunction
+
+;/* DEPRECATED! */;
+function SetSexualityBisexual(Actor ActorRef)
+  Stats.SetSkill(ActorRef, "Sexuality", 50)
+endFunction
+
+;/* DEPRECATED! */;
+function SetSexualityGay(Actor ActorRef)
+  Stats.SetSkill(ActorRef, "Sexuality", 1)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetSexuality(Actor ActorRef)
+  return Stats.GetSexuality(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetSexualityTitle(Actor ActorRef)
+  return Stats.GetSexualityTitle(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetSkillTitle(Actor ActorRef, string Skill)
+  return Stats.GetSkillTitle(ActorRef, Skill)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetSkill(Actor ActorRef, string Skill)
+  return Stats.GetSkill(ActorRef, Skill)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetSkillLevel(Actor ActorRef, string Skill)
+  return Stats.GetSkillLevel(ActorRef, Skill)
+endFunction
+
+;/* DEPRECATED! */;
+float function GetPurity(Actor ActorRef)
+  return Stats.GetPurity(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetPurityLevel(Actor ActorRef)
+  return Stats.GetPurityLevel(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetPurityTitle(Actor ActorRef)
+  return Stats.GetPurityTitle(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function IsPure(Actor ActorRef)
+  return Stats.IsPure(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function IsLewd(Actor ActorRef)
+  return Stats.IsLewd(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function IsStraight(Actor ActorRef)
+  return Stats.IsStraight(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function IsBisexual(Actor ActorRef)
+  return Stats.IsBisexual(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function IsGay(Actor ActorRef)
+  return Stats.IsGay(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+int function SexCount(Actor ActorRef)
+  return Stats.SexCount(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+bool function HadSex(Actor ActorRef)
+  return Stats.HadSex(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function LastSexGameTime(Actor ActorRef)
+  return Stats.LastSexGameTime(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function DaysSinceLastSex(Actor ActorRef)
+  return Stats.DaysSinceLastSex(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function HoursSinceLastSex(Actor ActorRef)
+  return Stats.HoursSinceLastSex(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function MinutesSinceLastSex(Actor ActorRef)
+  return Stats.MinutesSinceLastSex(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function SecondsSinceLastSex(Actor ActorRef)
+  return Stats.SecondsSinceLastSex(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+string function LastSexTimerString(Actor ActorRef)
+  return Stats.LastSexTimerString(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function LastSexRealTime(Actor ActorRef)
+  return Stats.LastSexRealTime(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function DaysSinceLastSexRealTime(Actor ActorRef)
+  return Stats.DaysSinceLastSexRealTime(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function HoursSinceLastSexRealTime(Actor ActorRef)
+  return Stats.HoursSinceLastSexRealTime(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function MinutesSinceLastSexRealTime(Actor ActorRef)
+  return Stats.MinutesSinceLastSexRealTime(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function SecondsSinceLastSexRealTime(Actor ActorRef)
+  return Stats.SecondsSinceLastSexRealTime(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+string function LastSexTimerStringRealTime(Actor ActorRef)
+  return Stats.LastSexTimerStringRealTime(ActorRef)
+endFunction
+
+;/* DEPRECATED! */;
+float function AdjustPlayerPurity(float amount)
+  return Stats.AdjustPurity(PlayerRef, amount)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetPlayerPurityLevel()
+  return Stats.GetPurityLevel(PlayerRef)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetPlayerPurityTitle()
+  return Stats.GetPurityTitle(PlayerRef)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetPlayerSexualityTitle()
+  return Stats.GetSexualityTitle(PlayerRef)
+endFunction
+
+;/* DEPRECATED! */;
+int function GetPlayerSkillLevel(string Skill)
+  return Stats.GetSkillLevel(PlayerRef, Skill)
+endFunction
+
+;/* DEPRECATED! */;
+string function GetPlayerSkillTitle(string Skill)
+  return Stats.GetSkillTitle(PlayerRef, Skill)
 endFunction
 
 ;#-----------------------------------------------------------------------------------------------------------------------------------------#

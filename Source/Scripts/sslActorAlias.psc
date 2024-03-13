@@ -762,29 +762,9 @@ State Animating
 			endIf
 		endIf
 		Utility.WaitMenuMode(0.2)
-		; Reset enjoyment build up, if using multiple orgasms
-		QuitEnjoyment += Enjoyment
-		if _sex <= 2 || sslActorStats.IsSkilled(ActorRef)	; NOTE: Always returns true
-			if IsVictim()
-				BaseEnjoyment += ((BestRelation - 3) + PapyrusUtil.ClampInt((OwnSkills[Stats.kLewd]-OwnSkills[Stats.kPure]) as int,-6,6)) * Utility.RandomInt(5, 10)
-			else
-				if IsAggressor()
-					BaseEnjoyment += (-1*((BestRelation - 4) + PapyrusUtil.ClampInt(((Skills[Stats.kLewd]-Skills[Stats.kPure])-(OwnSkills[Stats.kLewd]-OwnSkills[Stats.kPure])) as int,-6,6))) * Utility.RandomInt(5, 10)
-				else
-					BaseEnjoyment += (BestRelation + PapyrusUtil.ClampInt((((Skills[Stats.kLewd]+OwnSkills[Stats.kLewd])*0.5)-((Skills[Stats.kPure]+OwnSkills[Stats.kPure])*0.5)) as int,0,6)) * Utility.RandomInt(5, 10)
-				endIf
-			endIf
-		else
-			if IsVictim()
-				BaseEnjoyment += (BestRelation - 3) * Utility.RandomInt(5, 10)
-			else
-				if IsAggressor()
-					BaseEnjoyment += (-1*(BestRelation - 4)) * Utility.RandomInt(5, 10)
-				else
-					BaseEnjoyment += (BestRelation + 3) * Utility.RandomInt(5, 10)
-				endIf
-			endIf
-		endIf
+
+		; TODO: Reset enjoyment build up, if using multiple orgasms
+		
 		RegisterForSingleUpdate(0.8)
 	EndFunction
 
@@ -941,6 +921,18 @@ Function Redress()
 		ActorRef.AddSpell(HDTHeelSpell, false)
 	EndIf
 EndFunction
+
+; ------------------------------------------------------- ;
+; --- Enjoyment                                       --- ;
+; ------------------------------------------------------- ;
+
+; TODO: Recalculation of enjoyment, based on new stats system
+
+; ------------------------------------------------------- ;
+; ---	Statistics				                            --- ;
+; ------------------------------------------------------- ;
+
+; TODO: Completely overhaul this
 
 ; ------------------------------------------------------- ;
 ; --- Initialization                                  --- ;
@@ -1271,109 +1263,6 @@ endFunction
 ; *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* ;
 
 ; ------------------------------------------------------- ;
-; --- Enjoyment                                       --- ;
-; ------------------------------------------------------- ;
-
-float[] Skills
-float[] OwnSkills
-
-int BestRelation
-int BaseEnjoyment
-int QuitEnjoyment
-int FullEnjoyment
-
-Function GetBaseEnjoyment()
-	; COMEBACK: Everything below still needs reviewing or redoing
-	; NOTE: IsSkilled() always returns true P+ V2.5+
-	if _sex <= 2 || sslActorStats.IsSkilled(ActorRef)
-		; Always use players stats for NPCS if present, so players stats mean something more
-		Actor SkilledActor = ActorRef
-		If(_Thread.HasPlayer && ActorRef != _PlayerRef)
-			SkilledActor = _PlayerRef
-		; If a non-creature couple, base skills off partner
-		ElseIf(_Thread.ActorCount > 1 && !_Thread.HasCreature)
-			SkilledActor = _Thread.Positions[sslUtility.IndexTravel(Position, _Thread.ActorCount)]
-		EndIf
-		; Get sex skills of partner/player
-		Skills       = Stats.GetSkillLevels(SkilledActor)
-		OwnSkills    = Stats.GetSkillLevels(ActorRef)
-		; Try to prevent orgasms on fist stage resting enjoyment
-		float FirsStageTime
-		if _Thread.LeadIn
-			FirsStageTime = _Config.StageTimerLeadIn[0]
-		elseIf _Thread.IsType[0]
-			FirsStageTime = _Config.StageTimerAggr[0]
-		else
-			FirsStageTime = _Config.StageTimer[0]
-		endIf
-		BaseEnjoyment -= Math.Abs(CalcEnjoyment(_Thread.SkillBonus, Skills, _Thread.LeadIn, _sex == 1, FirsStageTime, 1, _Thread.Animation.StageCount)) as int
-		if BaseEnjoyment < -5
-			BaseEnjoyment += 10
-		endIf
-		; Add Bonus Enjoyment
-		if IsVictim()
-			BestRelation = _Thread.GetLowestPresentRelationshipRank(ActorRef)
-			BaseEnjoyment += ((BestRelation - 3) + PapyrusUtil.ClampInt((OwnSkills[Stats.kLewd]-OwnSkills[Stats.kPure]) as int,-6,6)) * Utility.RandomInt(1, 10)
-		else
-			BestRelation = _Thread.GetHighestPresentRelationshipRank(ActorRef)
-			if IsAggressor()
-				BaseEnjoyment += (-1*((BestRelation - 4) + PapyrusUtil.ClampInt(((Skills[Stats.kLewd]-Skills[Stats.kPure])-(OwnSkills[Stats.kLewd]-OwnSkills[Stats.kPure])) as int,-6,6))) * Utility.RandomInt(1, 10)
-			else
-				BaseEnjoyment += (BestRelation + PapyrusUtil.ClampInt((((Skills[Stats.kLewd]+OwnSkills[Stats.kLewd])*0.5)-((Skills[Stats.kPure]+OwnSkills[Stats.kPure])*0.5)) as int,0,6)) * Utility.RandomInt(1, 10)
-			endIf
-		endIf
-	else
-		if IsVictim()
-			BestRelation = _Thread.GetLowestPresentRelationshipRank(ActorRef)
-			BaseEnjoyment += (BestRelation - 3) * Utility.RandomInt(1, 10)
-		else
-			BestRelation = _Thread.GetHighestPresentRelationshipRank(ActorRef)
-			if IsAggressor()
-				BaseEnjoyment += (-1*(BestRelation - 4)) * Utility.RandomInt(1, 10)
-			else
-				BaseEnjoyment += (BestRelation + 3) * Utility.RandomInt(1, 10)
-			endIf
-		endIf
-	endIf
-EndFunction
-
-int function GetEnjoyment()
-	if _sex > 2 && !sslActorStats.IsSkilled(ActorRef)
-		FullEnjoyment = BaseEnjoyment + (PapyrusUtil.ClampFloat(((SexLabUtil.GetCurrentGameRealTimeEx() - _StartedAt) + 1.0) / 5.0, 0.0, 40.0) + ((_Thread.Stage as float / _Thread.Animation.StageCount as float) * 60.0)) as int
-	else
-		FullEnjoyment = BaseEnjoyment + CalcEnjoyment(_Thread.SkillBonus, Skills, _Thread.LeadIn, _sex == 1, (SexLabUtil.GetCurrentGameRealTimeEx() - _StartedAt), _Thread.Stage, _Thread.Animation.StageCount)
-		; Log("FullEnjoyment["+FullEnjoyment+"] / BaseEnjoyment["+BaseEnjoyment+"] / Enjoyment["+(FullEnjoyment - BaseEnjoyment)+"]")
-	endIf
-
-	int Enjoyment = FullEnjoyment - QuitEnjoyment
-	if Enjoyment > 0
-		return Enjoyment
-	endIf
-	return 0
-endFunction
-
-int function GetPain()
-	GetEnjoyment()
-	if FullEnjoyment < 0
-		return Math.Abs(FullEnjoyment) as int
-	endIf
-	return 0	
-endFunction
-
-int function CalcReaction()
-	int Strength = GetEnjoyment()
-	; Check if the actor is in pain or too excited to care about pain
-	if FullEnjoyment < 0 && Strength < Math.Abs(FullEnjoyment)
-		Strength = FullEnjoyment
-	endIf
-	return PapyrusUtil.ClampInt(Math.Abs(Strength) as int, 0, 100)
-endFunction
-
-function AdjustEnjoyment(int AdjustBy)
-	BaseEnjoyment += AdjustBy
-endfunction
-
-; ------------------------------------------------------- ;
 ; --- Data Accessors                                  --- ;
 ; ------------------------------------------------------- ;
 
@@ -1387,35 +1276,6 @@ function ApplyCum()
 		_Thread.ActorLib.ApplyCum(ActorRef, CumID)
 	endIf
 endFunction
-
-; ------------------------------------------------------- ;
-; ---	Statistics				                            --- ;
-; ------------------------------------------------------- ;
-
-; TODO: Completely overhaul this
-Function DoStatistics()
-	Actor VictimRef = _Thread.VictimRef
-	if IsVictim()
-		VictimRef = ActorRef
-	endIf
-	int sex_ = _sex
-	If (sex_ >= 2)
-		; translate to legacy sex
-		sex_ -= 1
-	EndIf
-	float rt = SexLabUtil.GetCurrentGameRealTimeEx()
-	sslActorStats.RecordThread(ActorRef, sex_, BestRelation, _StartedAt, rt, Utility.GetCurrentGameTime(), _Thread.HasPlayer, VictimRef, _Thread.Genders, _Thread.SkillXP)
-	Stats.AddPartners(ActorRef, _Thread.Positions, _Thread.Victims)
-	if _Thread.IsVaginal
-		Stats.AdjustSkill(ActorRef, "VaginalCount", 1)
-	endIf
-	if _Thread.IsAnal
-		Stats.AdjustSkill(ActorRef, "AnalCount", 1)
-	endIf
-	if _Thread.IsOral
-		Stats.AdjustSkill(ActorRef, "OlCount", 1)
-	endIf
-EndFunction
 
 ; ------------------------------------------------------- ;
 ; --- Misc Utility					                          --- ;
