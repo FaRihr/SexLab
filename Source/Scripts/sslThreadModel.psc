@@ -2512,10 +2512,10 @@ endfunction
 ; implementation variables
 float _grinding
 float _aFoot
-float _aHand
-float _aOral
 float _pFoot
+float _aHand
 float _pHand
+float _aOral
 float _pOral
 float _aVaginal
 float _pVaginal
@@ -2524,10 +2524,10 @@ float _pAnal
 ; non-default variables
 float grindingSet
 float aFootSet
-float aHandSet
-float aOralSet
 float pFootSet
+float aHandSet
 float pHandSet
+float aOralSet
 float pOralSet
 float aVaginalSet
 float pVaginalSet
@@ -2539,14 +2539,14 @@ Function InitiateInteractionFactors()
 	_grinding = Utility.RandomFloat(0.05, 0.1)
 	_aFoot = Utility.RandomFloat(0.15, 0.25)
 	_aHand = Utility.RandomFloat(0.25, 0.35)
-	_aOral = Utility.RandomFloat(0.35, 0.45)
-	_pFoot = Utility.RandomFloat(0.4, 0.5)
-	_pHand = Utility.RandomFloat(0.5, 0.6)
-	_pOral = Utility.RandomFloat(0.6, 0.7)
-	_aVaginal = Utility.RandomFloat(0.85, 1.0)
-	_pVaginal = Utility.RandomFloat(0.9, 1.1)
-	_aAnal = Utility.RandomFloat(0.8, 0.95)
-	_pAnal = Utility.RandomFloat(0.95, 1.15)
+	_aOral = Utility.RandomFloat(0.35, 0.4)
+	_pFoot = Utility.RandomFloat(0.45, 0.5)
+	_pHand = Utility.RandomFloat(0.5, 0.55)
+	_pOral = Utility.RandomFloat(0.55, 0.6)
+	_pAnal = Utility.RandomFloat(0.7, 0.75)
+	_pVaginal = Utility.RandomFloat(0.8, 0.85)
+	_aAnal = Utility.RandomFloat(0.9, 0.95)
+	_aVaginal = Utility.RandomFloat(1.0, 1.05)
 	if grindingSet
 		_grinding = grindingSet
 	endif
@@ -2568,8 +2568,8 @@ Function InitiateInteractionFactors()
 	if pOralSet
 		_pOral = pOralSet
 	endif
-	if aVaginalSet
-		_aVaginal = aVaginalSet
+	if pAnalSet
+		_pAnal = pAnalSet
 	endif
 	if pVaginalSet
 		_pVaginal = pVaginalSet
@@ -2577,12 +2577,12 @@ Function InitiateInteractionFactors()
 	if aAnalSet
 		_aAnal = aAnalSet
 	endif
-	if pAnalSet
-		_pAnal = pAnalSet
+	if aVaginalSet
+		_aVaginal = aVaginalSet
 	endif
 EndFunction
 
-; TODO: expose this to the MCM maybe?
+; TODO: expose this to the MCM maybe (or SexLab.ini, so people can share presets)?
 Function RedefineInteractionFactors(float grinding, float aFoot, float pFoot, float aHand, float pHand, float aOral, float pOral, float aVaginal, float pVaginal, float aAnal, float pAnal)
 	grindingSet = grinding
 	aFootSet = aFoot
@@ -2610,16 +2610,16 @@ float Function CalcPhysicFactor(Actor ActorRef)
     while i < typesPhysic.Length
 		int typePhysic = typesPhysic[i]
 		if typePhysic == PTYPE_VAGINALP
-			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_VAGINALP: Detected, Velocity: " + Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_VAGINALP)))
+			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_VAGINALP: Detected, Velocity: " + (GetPhysicVelocity(ActorRef, none, PTYPE_VAGINALP)))
             factorPhysic += _pVaginal; * (1 + (Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_VAGINALP)) / velocityMax))
         elseif typePhysic == PTYPE_ANALP
-			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_ANALP: Detected, Velocity: " + Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_ANALP)))
+			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_ANALP: Detected, Velocity: " + (GetPhysicVelocity(ActorRef, none, PTYPE_ANALP)))
             factorPhysic += _pAnal; * (1 + (Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_ANALP)) / velocityMax))
         elseif typePhysic == PTYPE_VAGINALA
-			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_VAGINALA: Detected, Velocity: " + Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_VAGINALA)))
+			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_VAGINALA: Detected, Velocity: " + (GetPhysicVelocity(ActorRef, none, PTYPE_VAGINALA)))
             factorPhysic += _aVaginal; * (1 + (Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_VAGINALA)) / velocityMax))
         elseif typePhysic == PTYPE_ANALA
-			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_ANALA: Detected, Velocity: " + Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_ANALA)))
+			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_ANALA: Detected, Velocity: " + (GetPhysicVelocity(ActorRef, none, PTYPE_ANALA)))
             factorPhysic += _aAnal; * (1 + (Math.Abs(GetPhysicVelocity(ActorRef, none, PTYPE_ANALA)) / velocityMax))
         elseif typePhysic == PTYPE_Oral
 			Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_OralP: Detected")
@@ -2640,15 +2640,15 @@ float Function CalcPhysicFactor(Actor ActorRef)
         i += 1
     endwhile
 	if !actor_pOral && HasPhysicType(PTYPE_Oral, none, ActorRef)
-		Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_OralA: Detected, Velocity: " + Math.Abs(GetPhysicVelocity(none, ActorRef, PTYPE_Oral)))
+		Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_OralA: Detected, Velocity: " + (GetPhysicVelocity(none, ActorRef, PTYPE_Oral)))
 		factorPhysic += _aOral; * (1 + (Math.Abs(GetPhysicVelocity(none, ActorRef, PTYPE_Oral)) / velocityMax))
 	endif
 	if !actor_pFoot && HasPhysicType(PTYPE_Foot, none, ActorRef)
-		Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_FootA: Detected, Velocity: " + Math.Abs(GetPhysicVelocity(none, ActorRef, PTYPE_Foot)))
+		Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_FootA: Detected, Velocity: " + (GetPhysicVelocity(none, ActorRef, PTYPE_Foot)))
 		factorPhysic += _aFoot; * (1 + (Math.Abs(GetPhysicVelocity(none, ActorRef, PTYPE_Foot)) / velocityMax))
 	endif
 	if !actor_pHand && HasPhysicType(PTYPE_Hand, none, ActorRef)
-		Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_HandA: Detected, Velocity: " + Math.Abs(GetPhysicVelocity(none, ActorRef, PTYPE_Hand)))
+		Debug.Trace("[SLICK INTER] Actor: " + _name + ", PTYPE_HandA: Detected, Velocity: " + (GetPhysicVelocity(none, ActorRef, PTYPE_Hand)))
 		factorPhysic += _aHand; * (1 + (Math.Abs(GetPhysicVelocity(none, ActorRef, PTYPE_Hand)) / velocityMax))
 	endif
 	return factorPhysic
@@ -2680,9 +2680,9 @@ int Function GetInteractionTypeASL()
 	bool stageFJ = (HasStageTag("FootJob") || HasStageTag("Feet"))
 	bool stageGR = HasStageTag("Grinding")
 	;often conditioned by ASL
-	bool stageOR = HasStageTag("Oral")
-	bool stageVG = HasStageTag("Vaginal")
-	bool stageAN = HasStageTag("Anal")
+	bool stageOR = HasStageTag("Oral") && HasSceneTag("ASLTagged")
+	bool stageVG = HasStageTag("Vaginal") && HasSceneTag("ASLTagged")
+	bool stageAN = HasStageTag("Anal") && HasSceneTag("ASLTagged")
 
 	if (stageOR && stageVG && stageAN)
 		return ASLTYPE_TP

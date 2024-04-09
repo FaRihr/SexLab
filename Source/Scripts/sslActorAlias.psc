@@ -395,7 +395,7 @@ State Ready
 		_VoiceDelay = _BaseDelay
 		_ExpressionDelay = _BaseDelay * 2
 		; TODO: find fitting interval for enjoyment updates
-		_EnjoymentDelay = 3.0
+		_EnjoymentDelay = 1.5 ;SLSO's widget too 'jumpy' with 3.0
 		_ContextCheckDelay = 8.0
 		_hasOrgasm = false
 		_holdBack = false
@@ -816,7 +816,7 @@ State Animating
 				ModEvent.Send(handle)
 			EndIf
 		EndIf
-		; Enjoyment updates handled by OnOrgasmPenalty() and Enj/Pain adjustment variables
+		; enjoyment reduction handled by AdjustEnjoymentTimeVariables()
 		RegisterForSingleUpdate(UpdateInterval)
 		_LastOrgasm = SexLabUtil.GetCurrentGameRealTime()
 		_countLast = _OrgasmCount
@@ -872,8 +872,10 @@ State Animating
 	Event OnEndState()
 		UnregisterForModEvent("SSL_ORGASM_Thread" + _Thread.tid)
 		UnregisterForKey(HoldBackKeyCode)
-		SceneArousal = PapyrusUtil.ClampFloat(FullEnjoyment as float, 0, 100)
-		SexlabStatistics.SetStatistic(_ActorRef, 17, SceneArousal)
+		If ThreadRuntime > 40
+			SceneArousal = PapyrusUtil.ClampFloat(FullEnjoyment as float, 0, 100)
+			SexlabStatistics.SetStatistic(_ActorRef, 17, SceneArousal)
+		EndIf
 		If(_Expression || sslBaseExpression.IsMouthOpen(ActorRef))
 			sslBaseExpression.CloseMouth(ActorRef)
 		EndIf
@@ -1395,12 +1397,15 @@ bool CrtMaleHugePP
 int ConSubStatus
 int _ConSubStatus
 int ActorInterInfo
+int numStage
+int _numStage
 float ThreadRuntime
 ;base variables
 float BestRelation
 float ContextPain
 float EnjFactor
 float AdjustEnjFactor
+float StageAdvanceFactor
 ;penetration variables
 int TypeInterASL
 float InterFactor
@@ -1434,12 +1439,15 @@ Function ResetEnjoymentVariables()
 	ConSubStatus = _Thread.CONSENT_CONNONSUB
 	_ConSubStatus = _Thread.CONSENT_CONNONSUB
 	ActorInterInfo = _Thread.ACTORINT_NONPART
+	numStage = 1
+	_numStage = 1
 	ThreadRuntime = 0.0
 	;base variables
 	BestRelation = 0.0
 	ContextPain = 0.0
 	EnjFactor = 0.0
 	AdjustEnjFactor = 0.0
+	StageAdvanceFactor = 0.0
 	;penetration variables
 	TypeInterASL = 0
 	InterFactor = 0.0
@@ -1479,9 +1487,19 @@ EndFunction
 
 ; gets called by OnUpdate()
 Function UpdateEffectiveEnjoymentCalculations()
+	;update EnjFactor
+	_numStage = _Thread.GetStageHistoryLength()
+	If !_victim && (_numStage > numStage)
+		StageAdvanceFactor += 0.20
+		EnjFactor = (EnjFactor + StageAdvanceFactor)
+	EndIf
+	numStage = _numStage
+	If AdjustEnjFactor
+		EnjFactor = (EnjFactor + AdjustEnjFactor)
+	EndIf
+	;check interactions
 	TypeInterASL = _Thread.GetInteractionTypeASL()
 	_InterFactor = _Thread.GetInteractionFactor(_ActorRef, TypeInterASL, ActorInterInfo)
-	;time
 	If _InterFactor > 0 && InterFactor == 0
 		InterTime = _EnjoymentDelay
 		_InterStartedAt = SexLabUtil.GetCurrentGameRealTime()
@@ -1490,17 +1508,11 @@ Function UpdateEffectiveEnjoymentCalculations()
 	ElseIf _InterFactor == 0 && InterFactor > 0
 		InterTime = 0
 	EndIf
+	InterFactor = _InterFactor
+	;time
 	InterTimeTotal = SexLabUtil.GetCurrentGameRealTime() - _InterStartedAt
 	ThreadRuntime = SexLabUtil.GetCurrentGameRealTime() - _StartedAt
-	;factors
-	InterFactor = _InterFactor
-	If AdjustEnjFactor
-		EnjFactor = (EnjFactor + AdjustEnjFactor)
-	EndIf
-	;penalties (OnOrgasm)
-	If _OrgasmCount > 0
-		OnOrgasmPenalty()
-	EndIf
+	AdjustEnjoymentTimeVariables() ;handles OnOrgasmPenalty and StageSkipCompensation
 	;pain
 	EffectivePain = CalcEffectivePain()
 	If AdjustPain
@@ -1517,6 +1529,7 @@ Function UpdateEffectiveEnjoymentCalculations()
 		SceneArousal = PapyrusUtil.ClampFloat(FullEnjoyment as float, 0, 100)
 		SexlabStatistics.SetStatistic(_ActorRef, 17, SceneArousal)
 		_countLast = _OrgasmCount
+		StageAdvanceFactor = 0.0
 	EndIf
 	;debug
 	DebugEffectiveCalcVariables()
@@ -1605,7 +1618,7 @@ float Function CalcEffectivePain()
 			If CrtMaleHugePP && _sex <= 2
 				pp_factor = 0.5
 			EndIf
-			PenPain = (InterFactor + pp_factor) * xp_factor * 15
+			PenPain = (InterFactor + pp_factor) * xp_factor * 25
 			float InterTimeModifier = PenPain * ((1 / max_time) * InterTimeTotal)
 			PenPain -= InterTimeModifier
 		EndIf
@@ -1613,7 +1626,7 @@ float Function CalcEffectivePain()
 			PenPain = 0
 		EndIf
 	EndIf
-	EffectivePain = ContextPain + PenPain 
+	EffectivePain = ContextPain + PenPain
 	If EffectivePain < 0
 		EffectivePain = 0
 	EndIf
@@ -1624,22 +1637,25 @@ float Function CalcEffectiveEnjoyment()
 	EffectiveEnjoyment = 0.0
 	NonInteratctionEnj = 0.0
 	InteratctionEnj = 0.0
+	float boostTime = 20 ;constant InterType gives enj boost till InterTime stays below boostTime
+	float penaltyTime = 80 ;constant InterType gives enj penalty if InterTime goes higher than penaltyTime
 	;intractions-based enjoyment
 	If InterFactor > 0 && InterTime >= _EnjoymentDelay
-		InteratctionEnj = (EnjFactor + (0.5 + (InterFactor / 1.35))) * (InterTime * 0.5)
-		float InterTimeModifier = InteratctionEnj * (10 / InterTime)
-		If InterTime <= 20
-			InteratctionEnj += InterTimeModifier
-		ElseIf InterTime > 80
-			InteratctionEnj -= InterTimeModifier
+		InteratctionEnj = InterFactor * InterTime
+		float InterTimeModifier = 0
+		If InterTime < boostTime
+			InterTimeModifier = InteratctionEnj * (boostTime - InterTime) * 0.05
+		ElseIf InterTime > penaltyTime
+			InterTimeModifier = InteratctionEnj * ((penaltyTime - InterTime) / 150)
 		EndIf
+		InteratctionEnj += InterTimeModifier
 	EndIf
 	;avoiding rapid drops in InteratctionEnj
 	If InteratctionEnj > 0
 		_InteratctionEnj = InteratctionEnj
 	EndIf
 	If InteratctionEnj == 0 && _InteratctionEnj > 0
-		_InteratctionEnj -= (1 * _EnjoymentDelay) ; reducing by 3 every 3 seconds
+		_InteratctionEnj -= (1 * _EnjoymentDelay)
 		InteratctionEnj = _InteratctionEnj
 	EndIf
 	;runtime-based enjoyment
@@ -1649,30 +1665,24 @@ float Function CalcEffectiveEnjoyment()
 	return EffectiveEnjoyment
 EndFunction
 
-Function OnOrgasmPenalty()
-	; reduces runtime-based enjoyment
-	If _sex == 0 || _sex == 3
-		ThreadRuntime = (ThreadRuntime / (4 * _OrgasmCount))
-		If _OrgasmCount > 2
-			ThreadRuntime -= _OrgasmCount * 20
-		EndIf
-	Else
-		ThreadRuntime = (ThreadRuntime / (2 + _OrgasmCount))
-	EndIf
-	; reduces intractions-based enjoyment
-	If (_countLast != _OrgasmCount)
+Function AdjustEnjoymentTimeVariables()
+	;reduces runtime-based enjoyment (OnOrgasm)
+	If _OrgasmCount > 0
 		If _sex == 0 || _sex == 3
-			InterTime = (InterTime / (4 * _OrgasmCount))
-			If _OrgasmCount > 2
-				InterTime -= _OrgasmCount * 20
+			ThreadRuntime = ((ThreadRuntime - 40) / (4 * _OrgasmCount))
+			If _OrgasmCount > 1
+				ThreadRuntime -= _OrgasmCount * 20
 			EndIf
 		Else
-			InterTime = (InterTime / (2 + _OrgasmCount))
+			ThreadRuntime = ((ThreadRuntime - 40) / (3 + _OrgasmCount))
+		EndIf
+		;reduces intractions-based enjoyment (OnOrgasm)
+		If (_countLast != _OrgasmCount)
+			InterTime = _EnjoymentDelay
 		EndIf
 	EndIf
 EndFunction
 
-; IMP: enjoyment's dependent upon time; expressions/voices might not update quickly on stage skip
 int function CalcReaction()
 	; This function is intended to represent the excitement of an actor
 	; It controls how "loud" an actor moans, how strong the expression is
@@ -1687,7 +1697,7 @@ Function DebugBaseCalcVariables()
 EndFunction
 
 Function DebugEffectiveCalcVariables()
-	string EffectiveCalcLog = "[SLICK Effective] Actor: " + _ActorRef.GetLeveledActorBase().GetName() + ", PhysicTypes: " + _Thread.GetPhysicTypes(ActorRef, none) + ", ASLType: " + TypeInterASL + ", IntFactor: " + InterFactor + ", IntTime: " + InterTime as int + ", PenPain: " + PenPain as int + ", EffectivePain: " + EffectivePain as int + ", InterEnj: " + InteratctionEnj as int + ", NonInterEnj: " + NonInteratctionEnj as int + ", FullEnjoyment: " + FullEnjoyment
+	string EffectiveCalcLog = "[SLICK Effective] Actor: " + _ActorRef.GetLeveledActorBase().GetName() + ", PhysicTypes: " + _Thread.GetPhysicTypes(_ActorRef, none) + ", ASLType: " + TypeInterASL + ", IntFactor: " + InterFactor + ", IntTime: " + InterTime as int + ", PenPain: " + PenPain as int + ", EffectivePain: " + EffectivePain as int + ", InterEnj: " + InteratctionEnj as int + ", NonInterEnj: " + NonInteratctionEnj as int + ", FullEnjoyment: " + FullEnjoyment
 	Log(EffectiveCalcLog)
 	MiscUtil.PrintConsole(EffectiveCalcLog)
 EndFunction
